@@ -70,8 +70,12 @@ func (l *Locker) Start(ctx context.Context) {
 }
 
 func (l *Locker) Lock(client *Client) {
-	if client == nil || client.StatusChan == nil ||
+	if client == nil {
+		return
+	}
+	if client.StatusChan == nil ||
 		client.Id == "" || client.LockKey == "" {
+		client.StatusChan <- Status_InvalidData
 		return
 	}
 	l.lockChan <- client
