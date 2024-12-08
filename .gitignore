@@ -1,0 +1,28 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+# all exe files
+*.exe
+
+# all log files
+*.log
+
+# all certificates
+*.pem
+*.key
+
+# all json files
+*.json
+
+
+*.yaml
+*.yml
+*.zip
+
+!config.yaml
