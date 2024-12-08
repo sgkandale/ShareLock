@@ -20,6 +20,7 @@ enum Status
     Released = 3;
     Timeout = 4;
     UnknownLock = 5;
+    InvalidData = 6;
 }
 
 message LockRequest {
