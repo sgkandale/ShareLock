@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package sharelock;
+
+option go_package = "./sharelockPB";
+
+message ShareLockPingRequest {
+    string message = 1;
+}
+
+message ShareLockPingResponse {
+    string message = 1;
+}
+
+enum Status
+{
+    Unknown = 0;
+    Acquired = 1;
+    NotAcquired = 2;
+    Released = 3;
+    Timeout = 4;
+    UnknownLock = 5;
+}
+
+message LockRequest {
+    string key = 1;
+    int32 timeoutMs = 2;
+}
+
+message LockResponse {
+    Status status = 1;
+}
+
+message UnlockRequest {
+    string key = 1;
+}
+
+message UnlockResponse {
+    Status status = 1;
+}
+
+service ShareLockService {
+    rpc Ping (ShareLockPingRequest) returns (ShareLockPingResponse) {};
+
+    rpc Lock(LockRequest) returns (LockResponse) {};
+
+    rpc Unlock(UnlockRequest) returns (UnlockResponse) {};
+}
