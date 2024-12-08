@@ -78,6 +78,7 @@ func (h *HttpServer) Lock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r == nil || r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -108,7 +109,7 @@ func (h *HttpServer) Lock(w http.ResponseWriter, r *http.Request) {
 		Ctx:        lockerCtx,
 		Id:         r.Header.Get("X-Client-Id"),
 		LockKey:    req.Key,
-		StatusChan: make(chan locker.Status),
+		StatusChan: make(chan locker.Status, 1),
 	}
 	h.locker.Lock(&newClient)
 
@@ -120,6 +121,12 @@ listenerLoop:
 			case locker.Status_Locked:
 				resp := &sharelockPB.LockResponse{
 					Status: sharelockPB.Status_Acquired,
+				}
+				respEncoder.Encode(resp)
+				return
+			case locker.Status_InvalidData:
+				resp := &sharelockPB.LockResponse{
+					Status: sharelockPB.Status_InvalidData,
 				}
 				respEncoder.Encode(resp)
 				return
@@ -161,7 +168,7 @@ func (h *HttpServer) Unlock(w http.ResponseWriter, r *http.Request) {
 		Ctx:        r.Context(),
 		Id:         r.Header.Get("X-Client-Id"),
 		LockKey:    req.Key,
-		StatusChan: make(chan locker.Status),
+		StatusChan: make(chan locker.Status, 1),
 	}
 	h.locker.Unlock(&newClient)
 
@@ -186,6 +193,12 @@ listenerLoop:
 					},
 				)
 				w.WriteHeader(http.StatusNotFound)
+				return
+			case locker.Status_InvalidData:
+				resp := &sharelockPB.LockResponse{
+					Status: sharelockPB.Status_InvalidData,
+				}
+				respEncoder.Encode(resp)
 				return
 			}
 		case <-r.Context().Done():

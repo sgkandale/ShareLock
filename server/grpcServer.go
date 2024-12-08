@@ -143,6 +143,10 @@ listenerLoop:
 				}, nil
 			case locker.Status_Timeout:
 				break listenerLoop
+			case locker.Status_InvalidData:
+				return &sharelockPB.LockResponse{
+					Status: sharelockPB.Status_InvalidData,
+				}, nil
 			}
 		case <-ctx.Done():
 			break listenerLoop
@@ -185,6 +189,10 @@ listenerLoop:
 			case locker.Status_UnknownLock:
 				return &sharelockPB.UnlockResponse{
 					Status: sharelockPB.Status_UnknownLock,
+				}, nil
+			case locker.Status_InvalidData:
+				return &sharelockPB.UnlockResponse{
+					Status: sharelockPB.Status_InvalidData,
 				}, nil
 			}
 		case <-ctx.Done():

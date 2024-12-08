@@ -9,6 +9,7 @@ const (
 	Status_Locked
 	Status_Timeout
 	Status_UnknownLock
+	Status_InvalidData
 )
 
 type Client struct {
