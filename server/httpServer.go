@@ -111,7 +111,7 @@ func (h *HttpServer) Lock(w http.ResponseWriter, r *http.Request) {
 		LockKey:    req.Key,
 		StatusChan: make(chan locker.Status, 1),
 	}
-	h.locker.Lock(&newClient)
+	go h.locker.Lock(&newClient)
 
 listenerLoop:
 	for {
@@ -170,7 +170,7 @@ func (h *HttpServer) Unlock(w http.ResponseWriter, r *http.Request) {
 		LockKey:    req.Key,
 		StatusChan: make(chan locker.Status, 1),
 	}
-	h.locker.Unlock(&newClient)
+	go h.locker.Unlock(&newClient)
 
 listenerLoop:
 	for {

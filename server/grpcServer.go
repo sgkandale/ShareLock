@@ -130,7 +130,7 @@ func (g *GrpcServer) Lock(ctx context.Context, r *sharelockPB.LockRequest) (*sha
 		LockKey:    r.Key,
 		StatusChan: make(chan locker.Status),
 	}
-	g.locker.Lock(&newClient)
+	go g.locker.Lock(&newClient)
 
 listenerLoop:
 	for {
@@ -173,7 +173,7 @@ func (g *GrpcServer) Unlock(ctx context.Context, r *sharelockPB.UnlockRequest) (
 		LockKey:    r.Key,
 		StatusChan: make(chan locker.Status),
 	}
-	g.locker.Unlock(&newClient)
+	go g.locker.Unlock(&newClient)
 
 listenerLoop:
 	for {
