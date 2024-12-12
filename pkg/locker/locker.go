@@ -90,11 +90,13 @@ func (l *Locker) Unlock(client *Client) {
 }
 
 type KeyHandler struct {
-	key           string
-	releaseChan   chan bool
-	clientsChan   chan *Client
-	holdingId     string
-	deleteKeyChan chan string
+	key               string
+	releaseChan       chan bool
+	clientsChan       chan *Client
+	holdingId         string
+	deleteKeyChan     chan string
+	clientTimeout     *time.Ticker
+	clientTimeoutChan <-chan time.Time
 }
 
 func (k *KeyHandler) Handle() {
@@ -107,7 +109,12 @@ func (k *KeyHandler) Handle() {
 				k.deleteKeyChan <- k.key
 				return
 			}
+		case <-k.clientTimeoutChan:
+			k.releaseChan <- true
 		case <-k.releaseChan:
+			if k.clientTimeout != nil {
+				k.clientTimeout.Stop()
+			}
 			if len(k.clientsChan) == 0 {
 				k.deleteKeyChan <- k.key
 				return
@@ -122,6 +129,8 @@ func (k *KeyHandler) Handle() {
 				continue
 			}
 			k.holdingId = client.Id
+			k.clientTimeout = time.NewTicker(time.Minute)
+			k.clientTimeoutChan = k.clientTimeout.C
 			client.StatusChan <- Status_Locked
 		}
 	}
